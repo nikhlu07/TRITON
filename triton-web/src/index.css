@@ -1,0 +1,257 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 224 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 13% 91%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 220 13% 91%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 33 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 100% 55%;
+    --radius: 1.25rem;
+
+    --triton-blue: #1A56FF;
+    --triton-black: #111111;
+    --triton-white: #FFFFFF;
+    --triton-gray: #E5E7EB;
+    --triton-orange: #FF8C00;
+    --triton-blue-glow: rgba(26, 86, 255, 0.15);
+    --triton-green: #22C55E;
+    --triton-red: #EF4444;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 224 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 91%;
+    --sidebar-accent-foreground: 0 0% 7%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 224 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Satoshi', 'Inter', 'Helvetica Now Display', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ===== TRITON DESIGN SYSTEM: "Matrix & Node" ===== */
+
+/* Blueprint Grid Background */
+.blueprint-grid {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.blueprint-grid-dark {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Halftone on blue surfaces */
+.halftone-blue {
+  position: relative;
+  overflow: hidden;
+}
+.halftone-blue::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+  background-size: 8px 8px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Dark halftone on dark cards */
+.halftone-dark {
+  position: relative;
+  overflow: hidden;
+}
+.halftone-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(26,86,255,0.3) 1.5px, transparent 1.5px);
+  background-size: 10px 10px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Typography classes */
+.heading-display {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.label-micro {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+}
+
+.font-mono-data {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* Card hover */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--triton-blue-glow);
+}
+
+/* Pulsing dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+.pulse-dot {
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Slide in from top */
+@keyframes slide-in-top {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-in-top {
+  animation: slide-in-top 0.4s ease-out;
+}
+
+/* Scroll reveal */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.reveal-up {
+  animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Status colors */
+.status-compliant { color: var(--triton-green); }
+.status-breach { color: var(--triton-red); }
+.status-warning { color: var(--triton-orange); }
+.status-minting { color: var(--triton-blue); }
+
+.bg-compliant { background-color: var(--triton-green); }
+.bg-breach { background-color: var(--triton-red); }
+.bg-warning { background-color: var(--triton-orange); }
+.bg-minting { background-color: var(--triton-blue); }
+
+/* Active link */
+.nav-active {
+  color: var(--triton-blue) !important;
+  border-bottom: 2px solid var(--triton-blue);
+}
+
+/* Dashed connector line */
+.connector-line {
+  border-top: 2px dashed var(--triton-blue);
+  opacity: 0.4;
+}
+
+/* Button styles */
+.btn-triton {
+  border-radius: 9999px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 12px 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  border: none;
+  font-size: 0.9rem;
+}
+.btn-triton:active {
+  transform: scale(0.97);
+}
+.btn-triton-primary {
+  background-color: var(--triton-blue);
+  color: var(--triton-white);
+}
+.btn-triton-primary:hover {
+  opacity: 0.9;
+}
+.btn-triton-ghost {
+  background: transparent;
+  color: var(--triton-white);
+  border: 1.5px solid rgba(255,255,255,0.4);
+}
+.btn-triton-ghost:hover {
+  border-color: var(--triton-white);
+}
+
+/* Triton card */
+.triton-card {
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+}
+
+/* Freeze animation */
+@keyframes freeze-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.2); }
+}
+.freeze-anim {
+  animation: freeze-pulse 1.5s ease-in-out infinite;
+}
+
+/* Timeline current marker */
+@keyframes current-phase {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26,86,255,0.3); }
+  50% { box-shadow: 0 0 16px 4px rgba(26,86,255,0.15); }
+}
+.phase-current {
+  animation: current-phase 2s ease-in-out infinite;
+}
+
+/* Scrollbar styling for HCS panel */
+.hcs-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.hcs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hcs-scroll::-webkit-scrollbar-thumb {
+  background: rgba(26,86,255,0.3);
+  border-radius: 2px;
+}
