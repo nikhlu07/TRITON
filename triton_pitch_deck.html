@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRITON | Pitch Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        triton: {
+                            blue: '#1A56FF',
+                            black: '#111111',
+                            dark: '#0A0A0A',
+                            white: '#FFFFFF',
+                            gray: '#E5E7EB',
+                            green: '#22C55E',
+                            red: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Satoshi', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(26, 86, 255, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1A56FF;
+        }
+
+        body {
+            background-color: #0A0A0A;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        
+        .blueprint-grid {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .blueprint-grid-light {
+            background-image:
+                linear-gradient(rgba(17,17,17,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(17,17,17,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .heading-display {
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+        }
+
+        .label-micro {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.75rem;
+        }
+
+        .triton-card {
+            border-radius: 20px;
+            padding: 32px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .triton-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(26,86,255,0.15);
+        }
+
+        .halftone-dark {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .halftone-dark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(26,86,255,0.2) 1.5px, transparent 1.5px);
+            background-size: 10px 10px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 5rem 0;
+        }
+
+        .connector-line {
+            border-top: 2px dashed rgba(26,86,255,0.4);
+        }
+
+        .btn-triton {
+            border-radius: 9999px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 14px 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-triton-primary {
+            background-color: #1A56FF;
+            color: #FFFFFF;
+        }
+
+        .btn-triton-primary:hover {
+            box-shadow: 0 0 20px rgba(26,86,255,0.4);
+            transform: translateY(-2px);
+        }
+        
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Navigation Dots */
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background-color: #1A56FF;
+            transform: scale(1.5);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Nav -->
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-[#0A0A0A]/80 backdrop-blur-md border-b border-white/5">
+        <div class="font-bold text-xl tracking-widest uppercase flex items-center gap-3">
+            TRITON
+            <span class="px-2 py-0.5 rounded text-[10px] bg-white/10 border border-white/20 text-white/70 tracking-normal hidden md:inline-block">
+                Hedera Hello Future Apex Hackathon 2026
+            </span>
+        </div>
+        <div class="hidden lg:flex gap-8 text-sm font-medium text-white/60">
+            <a href="#problem" class="hover:text-white transition-colors">Problem</a>
+            <a href="#market" class="hover:text-white transition-colors">Market</a>
+            <a href="#why-triton" class="hover:text-white transition-colors">Advantage</a>
+            <a href="#solution" class="hover:text-white transition-colors">Architecture</a>
+            <a href="#model" class="hover:text-white transition-colors">Model</a>
+        </div>
+        <a href="#contact" class="btn-triton btn-triton-primary text-sm py-2 px-6">Invest / Contact</a>
+    </nav>
+
+    <!-- Side Navigation Dots -->
+    <div class="fixed right-8 top-1/2 -translate-y-1/2 z-50 flex-col gap-4 hidden xl:flex">
+        <a href="#hero" class="nav-dot active" data-target="hero"></a>
+        <a href="#problem" class="nav-dot" data-target="problem"></a>
+        <a href="#market" class="nav-dot" data-target="market"></a>
+        <a href="#why-triton" class="nav-dot" data-target="why-triton"></a>
+        <a href="#solution" class="nav-dot" data-target="solution"></a>
+        <a href="#model" class="nav-dot" data-target="model"></a>
+    </div>
+
+    <!-- 1. HERO SLIDE -->
+    <section id="hero" class="slide bg-triton-dark blueprint-grid">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full pt-16">
+            <div class="fade-in-up">
+                <p class="label-micro text-triton-blue mb-6 flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-triton-blue animate-pulse"></span>
+                    Trustless Real-time Industrial Track-and-trace On-chain Network
+                </p>
+                <h1 class="heading-display text-5xl md:text-7xl lg:text-8xl max-w-5xl text-white">
+                    Where the Pipe <br/>
+                    <span class="text-white/40">Meets the Proof.</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white/60 max-w-2xl mt-8 leading-relaxed font-light">
+                    Transforming a factory's water pipe into an auditable, on-chain asset. Cryptographically inevitable compliance.
+                </p>
+                <div class="mt-12 flex flex-wrap gap-4">
+                    <div class="border border-white/10 rounded-full px-4 py-2 bg-white/5 backdrop-blur font-mono text-sm text-white/80 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-black flex items-center justify-center text-[8px]">H</span> Hedera Hashgraph
+                    </div>
+                    <div class="border border-[#FF9900]/30 rounded-full px-4 py-2 bg-[#FF9900]/10 backdrop-blur font-mono text-sm text-[#FF9900] flex items-center gap-2">
+                        AWS KMS Secured
+                    </div>
+                    <div class="border border-[#22C55E]/30 rounded-full px-4 py-2 bg-[#22C55E]/10 backdrop-blur font-mono text-sm text-[#22C55E] flex items-center gap-2">
+                        Guardian dMRV Policy
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. THE PROBLEM -->
+    <section id="problem" class="slide bg-[#111] border-y border-white/5 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-triton-red/5 to-transparent pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full fade-in-up relative z-10">
+            <p class="label-micro text-triton-red mb-4">The Problem</p>
+            <h2 class="heading-display text-4xl md:text-6xl mb-6">The ₹48,000 Crore <br/>Trust Gap</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-16 pb-8">
+                <div>
+                    <p class="text-xl text-white/60 leading-relaxed mb-8 font-light">
+                        In FY2025-26, SEBI's BRSR Core framework mandated <strong>"Reasonable Assurance"</strong> for water consumption for the top 1,000 listed entities—shifting from self-reported estimates to hard data.
+                    </p>
+                    <p class="text-2xl font-medium text-white mb-6">
+                        The reality: Greenwashing at scale.
+                    </p>
+                    <p class="text-white/50 text-sm mb-6 max-w-md">
+                        A plant can write "We recycled 10 million liters" in an annual report—and no regulator or investor can prove it without a multi-month manual audit.
+                    </p>
+                </div>
+                
+                <div class="relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden">
+                    <table class="w-full text-left font-mono text-sm">
+                        <thead>
+                            <tr class="text-white/40 border-b border-white/10">
+                                <th class="pb-4 font-normal">What the law demands</th>
+                                <th class="pb-4 font-normal">What companies do</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr>
+                                <td class="py-4 text-[#22C55E] pr-4">Cryptographically verifiable audit trail</td>
+                                <td class="py-4 text-white/60"><span class="text-triton-red mr-2">✗</span>Excel spreadsheet, updated monthly</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-[#22C55E] pr-4">Real-time sensor telemetry</td>
+                                <td class="py-4 text-white/60"><span class="text-triton-red mr-2">✗</span>Employee reads meter & types number</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-[#22C55E] pr-4">Independent 3rd-party assurance</td>
+                                <td class="py-4 text-white/60"><span class="text-triton-red mr-2">✗</span>Consultant visits once a year</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-[#22C55E] pr-4">Tamper-proof evidence chain</td>
+                                <td class="py-4 text-white/60"><span class="text-triton-red mr-2">✗</span>PDF signed by the CFO</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. THE MARKET -->
+    <section id="market" class="slide bg-white blueprint-grid-light text-triton-black">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full fade-in-up">
+            <p class="label-micro text-triton-blue mb-4">Market Scale</p>
+            <h2 class="heading-display text-4xl md:text-6xl mb-6">An Expanding Compliance Mandate</h2>
+            <p class="text-xl text-triton-black/60 max-w-3xl font-light mb-16">
+                Water scarcity, rapid industrial expansion, and draconian regulatory shifts are driving unparalleled growth in industrial water audit technologies.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="triton-card bg-[#F9FAFB] border border-[#E5E7EB]">
+                    <div class="text-4xl mb-4">📊</div>
+                    <div class="font-mono text-4xl font-extrabold text-[#111111] mb-2">$1.66B</div>
+                    <div class="font-bold text-lg mb-2">Water Management Systems</div>
+                    <p class="text-sm text-black/50">Projected India Market Size by 2033 (CAGR 12.48%).</p>
+                </div>
+                
+                <div class="triton-card bg-[#F9FAFB] border border-[#E5E7EB]">
+                    <div class="text-4xl mb-4">🏭</div>
+                    <div class="font-mono text-4xl font-extrabold text-[#111111] mb-2">$4.65B</div>
+                    <div class="font-bold text-lg mb-2">Industrial Water Infra</div>
+                    <p class="text-sm text-black/50">India market size by 2030, largely driven by Zero Liquid Discharge mandates.</p>
+                </div>
+
+                <div class="triton-card bg-[#1A56FF] text-white border-transparent halftone-dark shadow-2xl">
+                    <div class="relative z-10">
+                        <div class="text-4xl mb-4">⚖️</div>
+                        <div class="font-mono text-4xl font-extrabold text-white mb-2">Top 1,000</div>
+                        <div class="font-bold text-lg mb-2 text-white">BRSR Core Entities</div>
+                        <p class="text-sm text-white/80">Are now mandated by SEBI to acquire independent, third-party ESG assurance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. WHY TRITON -->
+    <section id="why-triton" class="slide bg-[#050505] border-t border-white/5 relative overflow-hidden">
+        <div class="absolute -left-[20%] top-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-triton-blue/10 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full fade-in-up relative z-10">
+            <p class="label-micro text-triton-blue mb-4">Competitive Advantage</p>
+            <h2 class="heading-display text-4xl md:text-5xl mb-6">Why TRITON, Not Carbon?</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">A Genuine Blue Ocean</h3>
+                        <p class="text-white/60 leading-relaxed font-light">
+                            The carbon dMRV space is crowded with established players (Toucan, Moss, Regen). <strong>Industrial water quality verification is an untapped market.</strong> No production-grade, on-chain solution exists for the Indian regulatory context where deadlines (FY2025-26) have already passed.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2 text-triton-blue">The Dual Audit Trail</h3>
+                        <p class="text-white/60 leading-relaxed font-light">
+                            Traditional dMRV platforms have one immutable record (blockchain). TRITON has two independent, cross-verifiable records: <strong>Hedera HCS + AWS CloudTrail</strong>. This exceeds the evidence standard of any existing ESG assurance framework—including Big 4 manual methods.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur text-sm font-mono text-white/40">
+                    <div class="text-white/80 mb-4 font-bold tracking-wider">// Dual Evidence Stack Validation</div>
+                    <div class="space-y-3">
+                        <div class="flex gap-4">
+                            <span class="text-[#FF9900]">AWS</span>
+                            <span>Who authorized transaction? → Logged to CloudTrail</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <span class="text-white">Hedera</span>
+                            <span>What data was submitted? → Logged to HCS</span>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-8 border-t border-white/10 text-xs leading-relaxed">
+                        <span class="text-triton-green">Verified:</span> "A SEBI auditor no longer needs to trust the company. They verify the chains."
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SOLUTION -->
+    <section id="solution" class="slide bg-[#0A0A0A] blueprint-grid">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full fade-in-up">
+            <p class="label-micro text-triton-blue mb-4">The Solution</p>
+            <h2 class="heading-display text-4xl md:text-6xl mb-16">5-Layer Architecture</h2>
+
+            <div class="flex flex-col lg:flex-row gap-6 items-stretch w-full overflow-x-auto pb-8 snap-x">
+                
+                <div class="flex-1 min-w-[280px] bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-triton-blue/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="text-3xl mb-4 block relative z-10">🔩</span>
+                    <h3 class="text-white font-bold text-xl relative z-10">1. Edge Layer</h3>
+                    <p class="font-mono text-triton-blue text-xs my-2 relative z-10">IoT & Hiero DID</p>
+                    <p class="text-white/50 text-sm leading-relaxed relative z-10 mt-4">
+                        Hardened sensors with decentralized identities (e.g. <code>did:hedera:testnet:z6Mk...</code>). Every device has a cryptographic fingerprint.
+                    </p>
+                </div>
+
+                <div class="hidden lg:flex items-center px-1"><div class="w-8 connector-line"></div></div>
+
+                <div class="flex-1 min-w-[280px] bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-triton-blue/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="text-3xl mb-4 block relative z-10">🔐</span>
+                    <h3 class="text-white font-bold text-xl relative z-10">2. Security Layer</h3>
+                    <p class="font-mono text-triton-blue text-xs my-2 relative z-10">AWS KMS</p>
+                    <p class="text-white/50 text-sm leading-relaxed relative z-10 mt-4">
+                        FIPS 140-2 Level 3 HSMs sign every reading before it leaves the factory perimeter. Keys never exist in plaintext.
+                    </p>
+                </div>
+
+                <div class="hidden lg:flex items-center px-1"><div class="w-8 connector-line"></div></div>
+
+                <div class="flex-1 min-w-[280px] bg-[#1A56FF] rounded-2xl p-6 relative transform lg:-translate-y-4 shadow-2xl shadow-triton-blue/20">
+                    <div class="absolute -top-3 -right-3 flex">
+                        <span class="relative flex h-6 w-6">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40"></span>
+                            <span class="relative inline-flex rounded-full h-6 w-6 bg-white shrink-0 items-center justify-center">
+                                <span class="w-3 h-3 bg-triton-blue rounded-full"></span>
+                            </span>
+                        </span>
+                    </div>
+                    <span class="text-3xl mb-4 block relative z-10">📡</span>
+                    <h3 class="text-white font-bold text-xl relative z-10">3. Consensus</h3>
+                    <p class="font-mono text-white/80 text-xs my-2 relative z-10">Hedera HCS</p>
+                    <p class="text-white/90 text-sm leading-relaxed relative z-10 mt-4">
+                        Readings (pH, TDS, Flow) achieve Byzantine fault-tolerant consensus in ~3 seconds. Sequenced and immutable forever.
+                    </p>
+                </div>
+
+                <div class="hidden lg:flex items-center px-1"><div class="w-8 connector-line"></div></div>
+
+                <div class="flex-1 min-w-[280px] bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-triton-blue/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="text-3xl mb-4 block relative z-10">🧠</span>
+                    <h3 class="text-white font-bold text-xl relative z-10">4. Policy</h3>
+                    <p class="font-mono text-triton-blue text-xs my-2 relative z-10">Hedera Guardian</p>
+                    <p class="text-white/50 text-sm leading-relaxed relative z-10 mt-4">
+                        dMRV policies aligned with <strong>CPCB IS:2490</strong> and WHO standards evaluate windows and trigger actions automatically.
+                    </p>
+                </div>
+
+                <div class="hidden lg:flex items-center px-1"><div class="w-8 connector-line"></div></div>
+
+                <div class="flex-1 min-w-[280px] bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-triton-blue/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="text-3xl mb-4 block relative z-10">💧</span>
+                    <h3 class="text-white font-bold text-xl relative z-10">5. Asset</h3>
+                    <p class="font-mono text-triton-blue text-xs my-2 relative z-10">Hedera HTS</p>
+                    <p class="text-white/50 text-sm leading-relaxed relative z-10 mt-4">
+                        24 consecutive compliant hours mints 1 tradable <strong>WRT token</strong>. Breaches immediately freeze soulbound VGB badges.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. BUSINESS MODEL -->
+    <section id="model" class="slide bg-[#111] relative overflow-hidden">
+        <div class="absolute bg-triton-blue/10 w-96 h-96 rounded-full blur-[120px] -top-20 -right-20 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full fade-in-up relative z-10">
+            <p class="label-micro text-triton-blue mb-4">Business Model</p>
+            <h2 class="heading-display text-4xl md:text-6xl mb-6">Unbeatable Unit Economics</h2>
+            <p class="text-xl text-white/60 font-light mb-16">
+                Manual audits cost time, money, and accuracy. Software scales instantly. <br/>
+                Pricing is just <strong>$0.05 per cryptographic verification.</strong>
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                
+                <div class="bg-white/[0.03] border border-white/5 rounded-3xl p-10 flex flex-col justify-between">
+                    <div>
+                        <p class="text-white/40 uppercase tracking-wider text-sm font-bold mb-4">The Old Way</p>
+                        <h3 class="text-4xl font-light strike text-white/30 decoration-triton-red line-through">₹50 Lakh / yr</h3>
+                        <p class="mt-4 text-white/50 leading-relaxed text-sm">
+                            Hiring Big 4 consultants for manual spot-checks, lengthy report authoring, and retroactive data reconciliation over months.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-triton-blue/20 to-transparent border border-triton-blue/30 rounded-3xl p-10 flex flex-col justify-between shadow-2xl shadow-triton-blue/10 halftone-dark">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="flex h-3 w-3 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-triton-blue opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-triton-blue"></span>
+                            </span>
+                            <p class="text-triton-blue uppercase tracking-wider text-sm font-bold">The Triton Way</p>
+                        </div>
+                        <h3 class="text-5xl font-mono font-bold text-white mb-2">₹40,000 / yr</h3>
+                        <p class="text-lg text-white/80 font-medium mb-8">per factory subscription</p>
+                        
+                        <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/10">
+                            <div>
+                                <p class="text-2xl font-bold font-mono text-white">$47k</p>
+                                <p class="text-sm text-white/50">ARR per 3-sensor factory</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold font-mono text-white">8,640</p>
+                                <p class="text-sm text-white/50">verifications/sensor/day</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER / CTA -->
+    <section id="contact" class="bg-[#0A0A0A] py-24 text-center border-t border-white/10 relative overflow-hidden">
+        <div class="absolute inset-0 blueprint-grid opacity-50"></div>
+        <div class="relative z-10 max-w-3xl mx-auto px-6">
+            <h2 class="heading-display text-4xl mb-6">Ready to enforce truth?</h2>
+            <p class="text-lg text-white/50 mb-10">Join the movement integrating automated compliance within industrial infrastructure.</p>
+            <button class="btn-triton btn-triton-primary text-lg px-8 py-4">Request Developer API Keys</button>
+            <p class="text-xs text-white/30 mt-12 font-mono uppercase tracking-wider">TRITON © 2026. Cryptographically Inevitable.</p>
+        </div>
+    </section>
+
+    <!-- Intersection Observer Script for Reveal & Nav active states -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // Update animation class
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                    
+                    // Update navigation dots
+                    if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                        document.querySelectorAll('.nav-dot').forEach(dot => {
+                            dot.classList.remove('active');
+                            if (dot.getAttribute('data-target') === entry.target.parentElement.id || 
+                                dot.getAttribute('data-target') === entry.target.id) {
+                                dot.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, {
+                threshold: [0.1, 0.5]
+            });
+
+            document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+            document.querySelectorAll('.slide').forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
