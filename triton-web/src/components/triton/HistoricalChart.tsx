@@ -1,7 +1,7 @@
 import { type SensorReading } from '@/utils/sensorSimulator';
 
 interface HistoricalChartProps {
-  data: SensorReading[];
+  data: any[];
 }
 
 export default function HistoricalChart({ data }: HistoricalChartProps) {

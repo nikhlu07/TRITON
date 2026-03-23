@@ -1,0 +1,19 @@
+{
+  "name": "triton-hedera-backend",
+  "version": "1.0.0",
+  "description": "Backend services for TRITON: Trustless Real-time Industrial Track-and-trace On-chain Network.",
+  "main": "index.js",
+  "scripts": {
+    "register-dids": "node scripts/register-dids.js",
+    "simulate-sensors": "node scripts/hcs-sensor-publisher.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-kms": "^3.450.0",
+    "@hashgraph/sdk": "^2.35.0",
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "dotenv": "^16.3.1",
+    "express": "^5.2.1",
+    "solc": "^0.8.34"
+  }
+}

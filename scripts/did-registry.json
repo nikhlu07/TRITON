@@ -1,0 +1,21 @@
+{
+  "factory": {
+    "did": "did:hedera:testnet:z6Mk578447996b4594a4",
+    "privateKey": "302e020100300506032b657004220420cda2a3eca4121a3f7f128873b214a67335d2edd92e43b51dbbbc88d0ff72daff"
+  },
+  "sensors": {
+    "pH": {
+      "did": "did:hedera:testnet:z6Mkb94807bd728f3d03",
+      "privateKey": "302e020100300506032b657004220420d56a34f21345fbaa0b47425c0cadbe2cd9c1e400408621030835c1b80fdc9532"
+    },
+    "tds": {
+      "did": "did:hedera:testnet:z6Mkfe46e7785e04214c",
+      "privateKey": "302e020100300506032b657004220420a237a1c4b673e73ac8468acb3b2bb4092d2e7c22c18072d11029d13f9e59d18e"
+    },
+    "flow": {
+      "did": "did:hedera:testnet:z6Mk814fb1de26147d04",
+      "privateKey": "302e020100300506032b657004220420d0e408b6f7d532e1d40bd823505c01883ad99e5b238cbd398f73d0be3e72e3ff"
+    }
+  },
+  "timestamp": "2026-03-22T17:05:18.434Z"
+}

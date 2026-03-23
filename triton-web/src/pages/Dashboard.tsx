@@ -3,13 +3,25 @@ import SensorCard from '@/components/triton/SensorCard';
 import HCSStreamPanel from '@/components/triton/HCSStreamPanel';
 import HistoricalChart from '@/components/triton/HistoricalChart';
 import StatusBadge from '@/components/triton/StatusBadge';
-import { generateReading, getWrtCount, type SensorReading } from '@/utils/sensorSimulator';
 
-function randomHex(n: number) {
-  const c = '0123456789abcdef';
-  let s = '';
-  for (let i = 0; i < n; i++) s += c[Math.floor(Math.random() * 16)];
-  return s;
+interface PolicyEval {
+  timestamp: string;
+  ph: number;
+  tds: number;
+  flow: number;
+  verdict: 'COMPLIANT' | 'BREACH';
+  action: string;
+}
+
+interface LiveMetrics {
+  timestamp: Date;
+  pH: number;
+  tds: number;
+  flowRate: number;
+  anyBreach: boolean;
+  pHBreach: boolean;
+  tdsBreach: boolean;
+  flowBreach: boolean;
 }
 
 interface HCSEntry {
@@ -21,57 +33,95 @@ interface HCSEntry {
   compliant: boolean;
 }
 
-function readingToEntries(r: SensorReading): HCSEntry[] {
-  const ts = r.timestamp.toISOString().slice(11, 19);
-  return [
-    { seq: r.hcsSequence, timestamp: ts, sensor: 'pH_SENSOR_01', value: r.pH.toFixed(2), hmac: r.hmacHash.slice(0, 16), compliant: !r.pHBreach },
-    { seq: r.hcsSequence + 1, timestamp: ts, sensor: 'TDS_SENSOR_01', value: `${r.tds} mg/L`, hmac: randomHex(16), compliant: !r.tdsBreach },
-    { seq: r.hcsSequence + 2, timestamp: ts, sensor: 'FLOW_SENSOR_01', value: `${r.flowRate} m³/h`, hmac: randomHex(16), compliant: true },
-  ];
-}
-
-interface PolicyEval {
-  timestamp: string;
-  ph: number;
-  tds: number;
-  flow: number;
-  verdict: 'COMPLIANT' | 'BREACH';
-  action: string;
-}
-
 export default function Dashboard() {
-  const [reading, setReading] = useState<SensorReading>(generateReading());
-  const [readingHistory, setReadingHistory] = useState<SensorReading[]>([reading]);
-  const [hcsEntries, setHcsEntries] = useState<HCSEntry[]>(() => readingToEntries(reading));
+  const [reading, setReading] = useState<LiveMetrics | null>(null);
+  const [readingHistory, setReadingHistory] = useState<LiveMetrics[]>([]);
+  const [hcsEntries, setHcsEntries] = useState<HCSEntry[]>([]);
   const [wrt, setWrt] = useState(14);
   const [clock, setClock] = useState(new Date());
   const [policyLog, setPolicyLog] = useState<PolicyEval[]>([]);
   const clockRef = useRef<ReturnType<typeof setInterval>>();
 
+  // Update clock every second
   useEffect(() => {
     clockRef.current = setInterval(() => setClock(new Date()), 1000);
     return () => clearInterval(clockRef.current);
   }, []);
 
+  // Fetch Live Data from Node Backend hitting Hedera HCS
   useEffect(() => {
-    const timer = setInterval(() => {
-      const r = generateReading();
-      setReading(r);
-      const newEntries = readingToEntries(r);
-      setHcsEntries(prev => [...newEntries, ...prev].slice(0, 30));
-      setReadingHistory(prev => [...prev.slice(-29), r]);
-      setWrt(getWrtCount(r.anyBreach));
-      setPolicyLog(prev => [{
-        timestamp: r.timestamp.toISOString().slice(11, 19),
-        ph: r.pH, tds: r.tds, flow: r.flowRate,
-        verdict: (r.anyBreach ? 'BREACH' : 'COMPLIANT') as 'BREACH' | 'COMPLIANT',
-        action: r.anyBreach ? 'FREEZE' : (Math.random() > 0.7 ? 'MINT' : 'ACCUMULATE'),
-      }, ...prev].slice(0, 5));
-    }, 3000);
+    const fetchLiveData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/status');
+        const data = await response.json();
+        
+        if (data && data.recentTransactions && data.recentTransactions.length > 0) {
+           const tx = data.recentTransactions[0];
+           
+           if (!tx.metrics) return; // Wait for new backend format to hit
+
+           // Current metrics from the latest Hedera payload
+           const isPhBreach = tx.metrics.pH < 6.5 || tx.metrics.pH > 8.5;
+           const isTdsBreach = tx.metrics.tds > 2100;
+           const isAnyBreach = tx.status !== 'COMPLIANT';
+
+           const liveData: LiveMetrics = {
+             timestamp: new Date(tx.time),
+             pH: tx.metrics.pH,
+             tds: tx.metrics.tds,
+             flowRate: tx.metrics.flowRate || tx.metrics.flow,
+             anyBreach: isAnyBreach,
+             pHBreach: isPhBreach,
+             tdsBreach: isTdsBreach,
+             flowBreach: false
+           };
+
+           setReading(liveData);
+           setWrt(data.totalWrtTokensMinted || 14);
+
+           // Build Policy Log
+           const plog = data.recentTransactions.slice(0, 5).map((t: any) => ({
+              timestamp: new Date(t.time).toISOString().slice(11, 19),
+              ph: t.metrics?.pH, tds: t.metrics?.tds, flow: t.metrics?.flow,
+              verdict: t.status,
+              action: t.status === 'COMPLIANT' ? (Math.random() > 0.7 ? 'MINT' : 'ACCUMULATE') : 'FREEZE'
+           }));
+           setPolicyLog(plog);
+
+           // Build History Array for Chart
+           const history = data.recentTransactions.slice(0, 30).reverse().map((t: any) => ({
+              timestamp: new Date(t.time),
+              pH: t.metrics?.pH || 7.0,
+              tds: t.metrics?.tds || 500,
+              flowRate: t.metrics?.flow || 50,
+              anyBreach: t.status !== 'COMPLIANT'
+           }));
+           setReadingHistory(history);
+
+           // Build HCS Stream Panel
+           const hcsList: HCSEntry[] = data.recentTransactions.slice(0, 10).map((t: any) => ({
+             seq: parseInt(t.seq),
+             timestamp: new Date(t.time).toISOString().slice(11, 19),
+             sensor: 'EDGE_GATEWAY_01',
+             value: `Hash: ${t.hash.slice(0, 8)}`,
+             hmac: t.kmsSignature ? `KMS Validated` : 'Unverified',
+             compliant: t.status === 'COMPLIANT'
+           }));
+           setHcsEntries(hcsList);
+        }
+      } catch (err) {
+        console.error("Error fetching live data", err);
+      }
+    };
+
+    fetchLiveData();
+    const timer = setInterval(fetchLiveData, 3000);
     return () => clearInterval(timer);
   }, []);
 
-  const breach = reading.anyBreach;
+  const breach = reading ? reading.anyBreach : false;
+
+  if (!reading) return <div className="p-10 text-white blueprint-grid min-h-screen pt-24 font-mono">Awaiting Live AWS KMS connection... Start node scripts/server.js and hcs-sensor-publisher.js</div>;
 
   return (
     <div className="pt-16 bg-[#0A0A0A] text-white blueprint-grid min-h-screen">

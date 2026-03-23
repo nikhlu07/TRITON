@@ -1,0 +1,107 @@
+{
+  "name": "TRITON: CPCB Industrial Water Stewardship Policy",
+  "version": "1.0.0",
+  "description": "dMRV pipeline for industrial wastewater compliance evaluating pH and TDS based on Indian CPCB IS:2490-Part-I parameters. Automates minting of Water Restoration Tokens (WRT) and managing VORTEX Green Badge (VGB) Soulbound NFTs.",
+  "policyTag": "TRITON-WATER-MRV",
+  "topicId": "0.0.8330677",
+  "schemas": [
+    {
+      "name": "Factory Identity",
+      "entity": "StandardRegistry",
+      "document": "did:hedera:testnet:z6Mk578..."
+    },
+    {
+      "name": "Water Quality Reading",
+      "entity": "SensorData",
+      "fields": {
+        "factoryId": { "type": "string", "required": true },
+        "sensorId": { "type": "string", "required": true },
+        "timestamp": { "type": "string", "required": true },
+        "pH": { "type": "number", "required": true },
+        "tds": { "type": "number", "required": true },
+        "flow": { "type": "number", "required": true },
+        "kmsSignature": { "type": "string", "required": true }
+      }
+    },
+    {
+      "name": "CPCB Compliance Report VC",
+      "entity": "VerifiableCredential",
+      "description": "Generated natively by Hedera Guardian"
+    }
+  ],
+  "tokens": [
+    {
+      "tokenId": "0.0.TBD_TOKEN",
+      "tokenName": "Water Restoration Token",
+      "tokenSymbol": "WRT",
+      "tokenType": "Fungible",
+      "decimals": 0
+    },
+    {
+      "tokenId": "0.0.TBD_NFT",
+      "tokenName": "VORTEX Green Badge",
+      "tokenSymbol": "VGB",
+      "tokenType": "Non-Fungible",
+      "decimals": 0
+    }
+  ],
+  "policyRoles": [
+    "INSTALLER",
+    "FACTORY",
+    "SEBI_AUDITOR"
+  ],
+  "config": {
+    "blockType": "interfaceContainerBlock",
+    "id": "rootContainer",
+    "permissions": ["ANY_ROLE"],
+    "children": [
+      {
+        "blockType": "informationContainerBlock",
+        "id": "onboardingPhase",
+        "title": "Onboard Factory Hardware & AWS KMS Identity"
+      },
+      {
+        "blockType": "hcsTopicSubscriptionBlock",
+        "id": "hcsIngestionNode",
+        "topicId": "0.0.8330677",
+        "schema": "Water Quality Reading",
+        "next": "mrVLogicBlock"
+      },
+      {
+        "blockType": "customLogicBlock",
+        "id": "mrVLogicBlock",
+        "description": "Evaluates the CPCB limits. Replaces arbitrary frontend JS logic.",
+        "expressions": [
+          "let isPhValid = (document.pH >= 6.5 && document.pH <= 8.5);",
+          "let isTdsValid = (document.tds <= 2100);",
+          "let isCompliant = isPhValid && isTdsValid;",
+          "if (isCompliant) { emit('COMPLIANT'); } else { emit('BREACH'); }"
+        ],
+        "events": [
+          { "name": "COMPLIANT", "target": "aggregateBlock-24hours" },
+          { "name": "BREACH", "target": "freezeBadgeNFTBlock" }
+        ]
+      },
+      {
+        "blockType": "aggregateDocumentBlock",
+        "id": "aggregateBlock-24hours",
+        "timer": "86400", 
+        "condition": "count(documents) == expectedReadingsFor24Hrs",
+        "next": "mintWrtTokenBlock"
+      },
+      {
+        "blockType": "mintDocumentBlock",
+        "id": "mintWrtTokenBlock",
+        "tokenId": "0.0.TBD_TOKEN",
+        "rule": "1 WRT per 24 hours of total compliance",
+        "amount": "1"
+      },
+      {
+        "blockType": "customLogicBlock",
+        "id": "freezeBadgeNFTBlock",
+        "description": "Immediately triggers Hedera Smart Contract/HTS to freeze the VORTEX Green badge if a breach occurs.",
+        "action": "Freeze VGB NFT"
+      }
+    ]
+  }
+}

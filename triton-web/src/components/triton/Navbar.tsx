@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useWallet } from '@/contexts/WalletContext';
 
 const links = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -11,6 +12,15 @@ const links = [
 export default function Navbar() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const { accountId, isConnecting, connect, disconnect } = useWallet();
+
+  const handleWalletConnect = () => {
+    if (accountId) {
+      disconnect();
+    } else {
+      connect();
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#E5E7EB]">
@@ -26,20 +36,52 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
-          {links.map(l => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                pathname === l.to
-                  ? 'text-[#1A56FF] border-b-2 border-[#1A56FF]'
-                  : 'text-[#111111]/60 hover:text-[#111111]'
-              }`}
-            >
-              {l.label}
-            </Link>
-          ))}
+        <div className="hidden md:flex items-center gap-6">
+          <div className="flex items-center gap-1">
+            {links.map(l => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  pathname === l.to
+                    ? 'text-[#1A56FF] border-b-2 border-[#1A56FF]'
+                    : 'text-[#111111]/60 hover:text-[#111111]'
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
+          
+          {/* Wallet Connect Button */}
+          <button 
+            onClick={handleWalletConnect}
+            disabled={isConnecting}
+            className={`px-4 py-2 rounded-lg font-mono text-sm font-semibold transition-all flex items-center gap-2 ${
+              accountId 
+              ? 'bg-green-100 text-green-700 border border-green-200'
+              : 'bg-[#1A56FF] text-white hover:bg-blue-700 shadow-md'
+            }`}
+          >
+            {!accountId && !isConnecting && (
+               <>
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                 Connect HashPack
+               </>
+            )}
+            {isConnecting && (
+               <>
+                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                 Connecting...
+               </>
+            )}
+            {accountId && (
+               <>
+                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                 {accountId.slice(0, 8)}...
+               </>
+            )}
+          </button>
         </div>
 
         {/* Mobile hamburger */}
