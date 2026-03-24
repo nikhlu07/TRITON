@@ -13,8 +13,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
+    // 🛡️ Ensure global objects are mapped correctly for Hiero & Hedera SDKs
     global: 'window',
-    Buffer: 'Buffer', // Direct injection
   },
   plugins: [
     react(), 

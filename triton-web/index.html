@@ -13,6 +13,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      // 🛡️ Ultimate Global Polyfill for Hiero cryptography & Hedera SDK
+      window.global = window;
+      window.process = { env: { NODE_ENV: 'production' } };
+      // Buffer will be injected by our polyfills.ts first-load in main.tsx
+    </script>
   </head>
   <body>
     <div id="root"></div>
