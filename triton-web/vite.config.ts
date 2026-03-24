@@ -13,21 +13,17 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  define: {
+    global: 'window',
+  },
   plugins: [
     react(), 
     mode === "development" && componentTagger(),
-    nodePolyfills({
-      include: ['buffer', 'events', 'process', 'util', 'stream', 'string_decoder'],
-      globals: { Buffer: true, global: true, process: true },
-      protocolImports: true, // 👈 Required for Hiero Ledger & Vercel builds
-    })
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // 🛡️ Ultimate Build Fix: Force-direct path resolution for Node shims
-      process: "vite-plugin-node-polyfills/shims/process",
-      buffer: "vite-plugin-node-polyfills/shims/buffer",
+      buffer: "buffer",
     },
   },
 }));
