@@ -34,27 +34,51 @@ let complianceState = {
 // --- REAL-TIME ENFORCEMENT ENGINE ---
 
 /**
- * Report a BREACH to the Live Smart Contract (0.0.8339707)
+ * ⚡ [ENFORCEMENT] Record Telemetry & Slash if Breached
+ * Hits the Live Smart Contract (0.0.8339707)
  */
-async function reportBreachOnChain(metrics) {
+async function reportOnChain(metrics, isCompliant, dataHash, signature) {
     try {
-        console.log("⚡ [ENFORCEMENT] Triggering On-Chain Slashing Protocol...");
         const registryId = process.env.HEDERA_WATER_REGISTRY_ID;
+        console.log(`⚡ [ENFORCEMENT] Syncing Compliance State On-Chain (0.0.8339707)...`);
         
-        const tx = new ContractExecuteTransaction()
+        const tx = await new ContractExecuteTransaction()
             .setContractId(registryId)
-            .setGas(100000)
-            .setFunction("reportBreach", new ContractFunctionParameters()
-                .addString("FACTORY_001") // Factory Name
-                .addUint256(Math.floor(metrics.pH * 100)) // Scaled pH
-                .addUint256(metrics.tds)
-            );
+            .setGas(1000000) // 🛡️ HIGH GAS for EVM array push + slashing transfer
+            .setFunction("recordTelemetry", new ContractFunctionParameters()
+                .addString("FACTORY_001") // factoryId
+                .addString(dataHash)      // dataHash
+                .addBool(isCompliant)      // isCompliant
+                .addString(signature)     // kmsSignature
+            )
+            .execute(client);
 
-        const response = await tx.execute(client);
-        const receipt = await response.getReceipt(client);
-        console.log(`✅ [LEDGER] Slashing Confirmed! Status: ${receipt.status.toString()}`);
+        const receipt = await tx.getReceipt(client);
+        console.log(`✅ [LEDGER] On-Chain Sync Confirmed! Status: ${receipt.status.toString()}`);
     } catch (err) {
-        console.error("❌ On-Chain Slashing Failed:", err.message);
+        if (err.message.includes("Factory not registered")) {
+            console.log("🛠️ [INITIAL SETUP] Registering Factory on Smart Contract Registry...");
+            await registerFactoryOnChain();
+        } else {
+            console.error("❌ On-Chain Sync Failed:", err.message);
+        }
+    }
+}
+
+async function registerFactoryOnChain() {
+    try {
+        const tx = await new ContractExecuteTransaction()
+            .setContractId(process.env.HEDERA_WATER_REGISTRY_ID)
+            .setGas(200000)
+            .setPayableAmount(100) // Minimum bond tinybars
+            .setFunction("registerFactory", new ContractFunctionParameters()
+                .addString("FACTORY_001")
+            )
+            .execute(client);
+        await tx.getReceipt(client);
+        console.log("✅ [LEDGER] Factory Registered! Bond Locked.");
+    } catch (err) {
+        console.error("❌ Registration Failed:", err.message);
     }
 }
 
@@ -99,47 +123,53 @@ app.post('/api/sensor', async (req, res) => {
         let status = 'COMPLIANT';
 
         // 🛡️ Guardian Logic Engine (Apply Policy thresholds)
-        if (payload.pH < 6.5 || payload.pH > 8.5 || payload.tds > 2100) {
-            status = 'BREACH';
+        const isCompliant = !(payload.pH < 6.5 || payload.pH > 8.5 || payload.tds > 2100);
+        status = isCompliant ? 'COMPLIANT' : 'BREACH';
+
+        if (!isCompliant) {
             complianceState.isCompliant = false;
             complianceState.lastBreach = new Date().toISOString();
             complianceState.consecutiveCleanReadings = 0;
-            
-            // 🔥 REAL ACTION: Report to Hedera EVM Contract
-            await reportBreachOnChain(payload);
         } else {
             complianceState.isCompliant = true;
             complianceState.consecutiveCleanReadings += 1;
-            
-            // 💎 REAL ACTION: Mint reward every 5 clean cycles
-            if (complianceState.consecutiveCleanReadings % 5 === 0) {
-                await mintRewardToken();
-            }
         }
 
+        // 🔐 Cryptographic Anchor (AWS KMS)
         const payloadBuffer = Buffer.from(JSON.stringify(payload));
         const kmsSignature = await kmsSigner.sign(payloadBuffer);
         const dataHash = crypto.createHash('sha256').update(payloadBuffer).digest('hex');
+        const signatureHex = kmsSignature.toString('hex');
 
-        const finalMessage = {
-            ruling: status,
-            metrics: payload,
-            security: { hash: dataHash, kmsSignatureHex: kmsSignature.toString('hex') }
-        };
+        // 🔥 REAL ACTION: Report to Hedera HCS Topic
+        const topicId = process.env.HCS_TOPIC_ID;
+        if (topicId) {
+            const hcsMessage = {
+                ruling: status,
+                metrics: payload,
+                security: { hash: dataHash, kmsSignature: signatureHex }
+            };
+            await new TopicMessageSubmitTransaction()
+                .setTopicId(topicId)
+                .setMessage(JSON.stringify(hcsMessage))
+                .execute(client);
+        }
 
-        const txResponse = await new TopicMessageSubmitTransaction()
-            .setTopicId(process.env.HCS_TOPIC_ID)
-            .setMessage(JSON.stringify(finalMessage))
-            .execute(client);
+        // 🏛️ REAL ACTION: Report to Hedera Smart Contract (Registry)
+        await reportOnChain(payload, isCompliant, dataHash, signatureHex);
 
-        const receipt = await txResponse.getReceipt(client);
-        
+        // 💎 REAL ACTION: Reward Minting
+        if (isCompliant && complianceState.consecutiveCleanReadings % 5 === 0) {
+            await mintRewardToken();
+        }
+
         const txRecord = {
-            seq: receipt.topicSequenceNumber.toString(),
+            seq: "SYNC", // Mirror node will track seq
             time: new Date().toISOString(),
             status: status,
             hash: dataHash,
-            metrics: payload
+            metrics: payload,
+            kmsSignature: signatureHex
         };
         
         complianceState.recentTransactions.unshift(txRecord);
