@@ -158,48 +158,69 @@ export default function Dashboard() {
         </div>
 
         {/* Bottom row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* WRT Counter */}
           <div className="triton-card halftone-blue bg-[#1A56FF] text-white">
             <div className="relative z-10">
-              <p className="label-micro text-white/60 mb-2">WRT MINTED TODAY</p>
+              <p className="label-micro text-white/40 mb-2">WRT MINTED TODAY</p>
               <p className="font-mono-data text-5xl font-extrabold">{wrt}</p>
-              <p className="text-xs text-white/50 mt-3">1 WRT = 24 consecutive hours of verified clean-water output</p>
+              <p className="text-[10px] text-white/50 mt-3 font-mono-data">MINT AUTHORITY: AWS KMS HSM</p>
+            </div>
+          </div>
+
+          {/* Provisioning Checklist (THE NEW SAAS ADDITION) */}
+          <div className="triton-card bg-[#1C1C1C] text-white halftone-dark border-l-2 border-[#1A56FF]">
+            <div className="relative z-10">
+              <p className="label-micro text-white/40 mb-3">FACTORY PROVISIONING</p>
+              <div className="space-y-2 font-mono-data text-[10px]">
+                <div className="flex items-center gap-2 text-[#22C55E]">
+                  <span>[✓]</span> <span>WALLET CONNECTED (HASHPACK)</span>
+                </div>
+                <div className="flex items-center gap-2 text-[#22C55E]">
+                  <span>[✓]</span> <span>BOND STAKED (REGISTRY: 0.0.833…)</span>
+                </div>
+                <div className="flex items-center gap-2 text-[#22C55E]">
+                  <span>[✓]</span> <span>AWS KMS HSM KEY LINKED</span>
+                </div>
+                <div className={`flex items-center gap-2 ${wrt > 0 ? 'text-[#22C55E]' : 'text-white/30 animate-pulse'}`}>
+                  <span>{wrt > 0 ? '[✓]' : '[ ]'}</span> <span>REWARD EARNED (dMRV LOOP)</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* VGB Badge */}
           <div className={`triton-card bg-[#1C1C1C] text-white halftone-dark ${breach ? 'freeze-anim' : ''}`}>
-            <div className="relative z-10 text-center py-4">
-              <p className="label-micro text-white/60 mb-4">COMPLIANCE STATUS</p>
-              <div className="flex flex-col items-center gap-2 mb-2">
-                <span className="text-4xl">{breach ? '🛑' : '🛡️'}</span>
-                <span className={`font-bold text-xl uppercase tracking-widest ${breach ? 'text-[#EF4444]' : 'text-[#22C55E]'}`}>
+            <div className="relative z-10 text-center py-2">
+              <p className="label-micro text-white/40 mb-2 font-mono-data text-[9px]">COMPLIANCE STATUS</p>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-3xl">{breach ? '🛑' : '🛡️'}</span>
+                <span className={`font-bold text-base uppercase tracking-widest ${breach ? 'text-[#EF4444]' : 'text-[#22C55E]'}`}>
                   {breach ? 'Slashed' : 'Bond Active'}
                 </span>
-                <p className="text-[10px] text-white/30 font-mono-data mt-2">REGISTRY: 0.0.8339707</p>
+                <p className="text-[9px] text-white/30 font-mono-data">CONTRACT: 0.0.8339707</p>
               </div>
             </div>
           </div>
 
           {/* Guardian Policy */}
-          <div className="triton-card bg-[#1C1C1C] text-white halftone-dark">
+          <div className="triton-card bg-[#1C1C1C] text-white halftone-dark overflow-hidden">
             <div className="relative z-10">
-              <p className="label-micro text-white/60 mb-3">GUARDIAN POLICY LOG</p>
-              <div className="space-y-2">
-                {policyLog.length === 0 && <p className="text-white/30 text-xs font-mono-data">Awaiting evaluations...</p>}
+              <p className="label-micro text-white/40 mb-3">GUARDIAN POLICY LOG</p>
+              <div className="space-y-1.5 h-20 overflow-y-auto custom-scrollbar">
+                {policyLog.length === 0 && <p className="text-white/30 text-[10px] font-mono-data italic">Awaiting HCS signals...</p>}
                 {policyLog.map((p, i) => (
-                  <div key={i} className="font-mono-data text-[11px] flex flex-wrap gap-x-2">
+                  <div key={i} className="font-mono-data text-[9px] flex flex-wrap gap-x-1.5 border-b border-white/5 pb-1">
                     <span className="text-white/30">{p.timestamp}</span>
-                    <span className="text-white/60">pH:{p.ph} TDS:{p.tds}</span>
                     <span className={p.verdict === 'COMPLIANT' ? 'text-[#22C55E]' : 'text-[#EF4444]'}>{p.verdict}</span>
-                    <span className="text-[#1A56FF] font-bold">{p.action}</span>
+                    <span className="text-[#1A56FF] font-bold uppercase">{p.action}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
