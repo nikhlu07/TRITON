@@ -18,7 +18,8 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     nodePolyfills({
       include: ['buffer', 'events', 'process', 'util', 'stream', 'string_decoder'],
-      globals: { Buffer: true, global: true, process: true }
+      globals: { Buffer: true, global: true, process: true },
+      protocolImports: true, // 👈 Required for Hiero Ledger & Vercel builds
     })
   ].filter(Boolean),
   resolve: {
