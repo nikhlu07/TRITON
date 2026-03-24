@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -15,6 +14,7 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     global: 'window',
+    Buffer: 'Buffer', // Direct injection
   },
   plugins: [
     react(), 
@@ -23,10 +23,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // 🚨 Force-map the exact virtual paths that Hiero is looking for
-      "vite-plugin-node-polyfills/shims/buffer": "buffer",
-      "vite-plugin-node-polyfills/shims/process": "buffer", // Using buffer for process if needed, or better use real process if available
-      "buffer": "buffer",
+      // 🚨 Absolute fallback for Hiero Ledger & Vercel
+      buffer: "buffer",
+      process: "buffer", 
     },
   },
 }));
