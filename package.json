@@ -6,7 +6,8 @@
   "scripts": {
     "register-dids": "node scripts/register-dids.js",
     "simulate-sensors": "node scripts/hcs-sensor-publisher.js",
-    "build": "npm run build --prefix triton-web"
+    "build": "npm run build --prefix triton-web",
+    "postinstall": "npm install --prefix triton-web"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.450.0",
