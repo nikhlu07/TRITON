@@ -78,7 +78,7 @@ async function publishToHcs() {
         } catch (error) {
             console.error("❌ Gateway Unavailable:", error.message);
         }
-    }, 10000); // Publish every 10 seconds
+    }, 2000); // Publish every 2 seconds for High-Volume Ledger Proof
 }
 
 publishToHcs();
