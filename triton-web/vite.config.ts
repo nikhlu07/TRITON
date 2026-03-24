@@ -23,7 +23,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      buffer: "buffer",
+      // 🚨 Force-map the exact virtual paths that Hiero is looking for
+      "vite-plugin-node-polyfills/shims/buffer": "buffer",
+      "vite-plugin-node-polyfills/shims/process": "buffer", // Using buffer for process if needed, or better use real process if available
+      "buffer": "buffer",
     },
   },
 }));
