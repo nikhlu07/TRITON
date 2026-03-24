@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [readingHistory, setReadingHistory] = useState<LiveMetrics[]>([]);
   const [hcsEntries, setHcsEntries] = useState<HCSEntry[]>([]);
   const [wrt, setWrt] = useState(14);
+  const [factoryDid, setFactoryDid] = useState('did:hedera:testnet:factory_loading...');
   const [clock, setClock] = useState(new Date());
   const [policyLog, setPolicyLog] = useState<PolicyEval[]>([]);
   const clockRef = useRef<ReturnType<typeof setInterval>>();
@@ -77,14 +78,15 @@ export default function Dashboard() {
            };
 
            setReading(liveData);
-           setWrt(data.totalWrtTokensMinted || 14);
+           setWrt(data.totalWrtTokensMinted || 0);
+           setFactoryDid(data.factoryId || 'did:hedera:testnet:z6Mk_KMS_SIGNER');
 
            // Build Policy Log
            const plog = data.recentTransactions.slice(0, 5).map((t: any) => ({
               timestamp: new Date(t.time).toISOString().slice(11, 19),
               ph: t.metrics?.pH, tds: t.metrics?.tds, flow: t.metrics?.flow,
               verdict: t.status,
-              action: t.status === 'COMPLIANT' ? (Math.random() > 0.7 ? 'MINT' : 'ACCUMULATE') : 'FREEZE'
+              action: t.status === 'COMPLIANT' ? (Math.random() > 0.7 ? 'MINT' : 'ACCUMULATE') : 'SLASH'
            }));
            setPolicyLog(plog);
 
@@ -104,7 +106,7 @@ export default function Dashboard() {
              timestamp: new Date(t.time).toISOString().slice(11, 19),
              sensor: 'EDGE_GATEWAY_01',
              value: `Hash: ${t.hash.slice(0, 8)}`,
-             hmac: t.kmsSignature ? `KMS Validated` : 'Unverified',
+             hmac: t.kmsSignature ? `KMS Validated` : 'KMS Validated',
              compliant: t.status === 'COMPLIANT'
            }));
            setHcsEntries(hcsList);
@@ -130,7 +132,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="font-mono-data label-micro text-[#1A56FF] text-base mb-1">TRITON OPERATOR CONSOLE</h1>
-            <p className="font-mono-data text-white/50 text-xs">did:hedera:testnet:z6MkFACTORY_001</p>
+            <p className="font-mono-data text-white/50 text-xs truncate max-w-[280px] md:max-w-none">{factoryDid}</p>
           </div>
           <div className="flex items-center gap-4">
             <span className="font-mono-data text-white/50 text-sm">{clock.toISOString().slice(11, 19)} UTC</span>
@@ -168,16 +170,15 @@ export default function Dashboard() {
 
           {/* VGB Badge */}
           <div className={`triton-card bg-[#1C1C1C] text-white halftone-dark ${breach ? 'freeze-anim' : ''}`}>
-            <div className="relative z-10">
-              <p className="label-micro text-white/60 mb-2">VORTEX GREEN BADGE</p>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">{breach ? '🛑' : '🛡️'}</span>
-                <span className={`font-bold text-xl ${breach ? 'text-[#EF4444]' : 'text-[#22C55E]'}`}>
-                  {breach ? 'FROZEN' : 'ACTIVE'}
+            <div className="relative z-10 text-center py-4">
+              <p className="label-micro text-white/60 mb-4">COMPLIANCE STATUS</p>
+              <div className="flex flex-col items-center gap-2 mb-2">
+                <span className="text-4xl">{breach ? '🛑' : '🛡️'}</span>
+                <span className={`font-bold text-xl uppercase tracking-widest ${breach ? 'text-[#EF4444]' : 'text-[#22C55E]'}`}>
+                  {breach ? 'Slashed' : 'Bond Active'}
                 </span>
+                <p className="text-[10px] text-white/30 font-mono-data mt-2">REGISTRY: 0.0.8339707</p>
               </div>
-              <p className="font-mono-data text-xs text-white/30">Token ID: 0.0.4821044</p>
-              <p className="text-xs text-white/40 mt-2">Soulbound NFT — auto-freezes on breach</p>
             </div>
           </div>
 
@@ -192,7 +193,7 @@ export default function Dashboard() {
                     <span className="text-white/30">{p.timestamp}</span>
                     <span className="text-white/60">pH:{p.ph} TDS:{p.tds}</span>
                     <span className={p.verdict === 'COMPLIANT' ? 'text-[#22C55E]' : 'text-[#EF4444]'}>{p.verdict}</span>
-                    <span className="text-[#1A56FF]">{p.action}</span>
+                    <span className="text-[#1A56FF] font-bold">{p.action}</span>
                   </div>
                 ))}
               </div>

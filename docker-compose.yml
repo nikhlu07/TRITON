@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # TRITON SecOps Oracle (Backend)
+  triton-oracle:
+    build: .
+    environment:
+      - HEDERA_ACCOUNT_ID=${HEDERA_ACCOUNT_ID}
+      - HEDERA_PRIVATE_KEY=${HEDERA_PRIVATE_KEY}
+      - AWS_KMS_KEY_ARN=${AWS_KMS_KEY_ARN}
+      - HCS_TOPIC_ID=${HCS_TOPIC_ID}
+      - HEDERA_WATER_REGISTRY_ID=${HEDERA_WATER_REGISTRY_ID}
+    ports:
+      - "3001:3001"
+    restart: always
+
+  # TRITON Operator Console (Frontend)
+  triton-dashboard:
+    build: 
+      context: ./triton-web
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://triton-oracle:3001
+    depends_on:
+      - triton-oracle
+    restart: always
+
+networks:
+  default:
+    name: triton-net
